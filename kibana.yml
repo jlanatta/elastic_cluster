@@ -1,0 +1,14 @@
+server:
+  host: "0"
+  ssl:
+    enabled: true
+    key: /usr/share/elasticsearch/config/certificates/kibana/kibana.key
+    certificate: /usr/share/elasticsearch/config/certificates/kibana/kibana.crt
+server.shutdownTimeout: "5s"
+elasticsearch:
+  hosts:
+    - "https://es_node1:9200"
+    - "https://es_node2:9200"
+    - "https://es_node3:9200"
+  ssl.certificateAuthorities: /usr/share/elasticsearch/config/certificates/ca/ca.crt
+monitoring.ui.container.elasticsearch.enabled: true

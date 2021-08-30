@@ -75,7 +75,8 @@ setup.dashboards:
 
 #============================== Kibana =========================================
 setup.kibana:
-  host: "https://${KIBANA_HOST}:5601"
+  host: "kibana:5601"
+  protocol: "https"
   ssl.enabled: true
   username: ${ELASTICSEARCH_USERNAME}
   password: ${ELASTICSEARCH_PASSWORD}
