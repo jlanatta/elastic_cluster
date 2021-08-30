@@ -16,9 +16,9 @@ metricbeat.modules:
 - module: elasticsearch
   xpack.enabled: true
   period: 10s
-  hosts: ["http://${ELASTICSEARCH_HOST}:9200"]
-  username: "elastic"
-  password: "${ELASTICSEARCH_PASSWORD}"
+  hosts: ["http://es_node1:9200", "http://es_node2:9200"]
+  username: ${ELASTICSEARCH_USERNAME}
+  password: ${ELASTICSEARCH_PASSWORD}
 
 - module: system
   metricsets: ["cpu", "load", "memory", "network", "process", "process_summary", "core", "diskio", "socket"]
@@ -61,13 +61,9 @@ processors:
 
 #========================== Elasticsearch output ===============================
 output.elasticsearch:
-  hosts: ["${ELASTICSEARCH_HOST}:9200"]
-  protocol: "https"
+  hosts: ["http://es_node1:9200"]
   username: ${ELASTICSEARCH_USERNAME}
   password: ${ELASTICSEARCH_PASSWORD}
-  ssl:
-    certificate_authorities: ["/usr/share/elasticsearch/config/certificates/ca/ca.crt"]
-    # verification_mode: "certificate"
 
 #============================== Dashboards =====================================
 setup.dashboards:
@@ -75,17 +71,17 @@ setup.dashboards:
 
 #============================== Kibana =========================================
 setup.kibana:
-  host: "https://${KIBANA_HOST}:5601"
-  ssl.enabled: true
+  host: "http://kibana:5601"
   username: ${ELASTICSEARCH_USERNAME}
   password: ${ELASTICSEARCH_PASSWORD}
-  ssl:
-    certificate_authorities: ["/usr/share/elasticsearch/config/certificates/ca/ca.crt"]
-    # verification_mode: "certificate"
 
-    # certificate_authorities: ["/etc/pki/root/ca.pem"]
-    # certificate: "/etc/pki/client/cert.pem"
-    # key: "/etc/pki/client/cert.key"
+# setup.kibana:
+#   host: "https://${KIBANA_HOST}:5601"
+#   ssl.enabled: true
+#   username: ${ELASTICSEARCH_USERNAME}
+#   password: ${ELASTICSEARCH_PASSWORD}
+#   ssl:
+#     certificate_authorities: ["/usr/share/elasticsearch/config/certificates/ca/ca.crt"]
 
 #============================== Xpack Monitoring ===============================
 xpack.monitoring:

@@ -1,24 +1,19 @@
 version: '2.2'
 
 services:
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${VERSION}
+  es_node1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION}
     restart: always
     environment:
-      - discovery.type=single-node
-      - node.name=elasticsearch
-      - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
-      - xpack.security.enabled=true
-      - xpack.license.self_generated.type=basic 
     ulimits:
       memlock:
         soft: -1
         hard: -1
     volumes:
-      - elastic-data:/usr/share/elasticsearch/data
-      # - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - elastic-data-01:/usr/share/elasticsearch/data
+      - ./elasticsearch_1.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     ports:
       - 9200:9200
     networks:
@@ -28,27 +23,40 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+  es_node2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION}
+    restart: always
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elastic-data-02:/usr/share/elasticsearch/data
+      - ./elasticsearch_2.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    networks:
+      - elasticsearch
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:${VERSION}
-    depends_on: {"elasticsearch": {"condition": "service_healthy"}}
+    image: docker.elastic.co/kibana/kibana:${ELASTICSEARCH_VERSION}
+    depends_on: {"es_node1": {"condition": "service_healthy"}}
     restart: always
     ports:
       - 5601:5601
     environment:
-      ELASTICSEARCH_USERNAME: elastic
+      ELASTICSEARCH_USERNAME: ${ELASTICSEARCH_USERNAME}
       ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD}
-      ELASTICSEARCH_URL: http://elasticsearch:9200
-      ELASTICSEARCH_HOSTS: '["http://elasticsearch:9200"]'
+    volumes:
+      - ./kibana.yml:/usr/share/kibana/config/kibana.yml
     networks:
       - elasticsearch
 
-  metricbeat:
-    image: docker.elastic.co/beats/metricbeat:${VERSION}
-    depends_on: {"elasticsearch": {"condition": "service_healthy"}}
+  metricbeat1:
+    image: docker.elastic.co/beats/metricbeat:${ELASTICSEARCH_VERSION}
+    depends_on: {"es_node1": {"condition": "service_healthy"}}
     # https://github.com/docker/swarmkit/issues/1951
-    container_name: metricbeat01
-    hostname: metricbeat01
     user: root
     networks:
       - elasticsearch
@@ -60,16 +68,16 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - metricbeat-data:/usr/share/metricbeat/data
     environment:
-      - ELASTICSEARCH_HOST=${ELASTICSEARCH_HOST:-elasticsearch}
-      - KIBANA_HOST=${KIBANA_HOST:-kibana}
-      - ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME:-elastic}
-      - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD:-changeme}
+      - ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME}
+      - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD}
     # disable strict permission checks
     command: ["--strict.perms=false", "-system.hostfs=/hostfs"]
     deploy:
       mode: global
 volumes:
-  elastic-data:
+  elastic-data-01:
+    driver: local
+  elastic-data-02:
     driver: local
   metricbeat-data:
     driver: local
