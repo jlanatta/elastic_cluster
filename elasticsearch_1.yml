@@ -1,14 +1,14 @@
 network.host: 0.0.0.0
+node.name: es_node1
 cluster:
   name: elastic-cluster
   initial_master_nodes: es_node1, es_node2
-node.name: es_node1
-
 discovery:
-  # type: single-node
   seed_hosts:
     - es_node2
-bootstrap.memory_lock: true
+bootstrap:
+  memory_lock: true
+  system_call_filter: false
 xpack:
   security.enabled: true
   license.self_generated.type: 'basic'
