@@ -62,12 +62,8 @@ processors:
 #========================== Elasticsearch output ===============================
 output.elasticsearch:
   hosts: ["${ELASTICSEARCH_HOST}:9200"]
-  protocol: "https"
   username: ${ELASTICSEARCH_USERNAME}
   password: ${ELASTICSEARCH_PASSWORD}
-  ssl:
-    certificate_authorities: ["/usr/share/elasticsearch/config/certificates/ca/ca.crt"]
-    # verification_mode: "certificate"
 
 #============================== Dashboards =====================================
 setup.dashboards:
@@ -76,17 +72,8 @@ setup.dashboards:
 #============================== Kibana =========================================
 setup.kibana:
   host: "kibana:5601"
-  protocol: "https"
-  ssl.enabled: true
   username: ${ELASTICSEARCH_USERNAME}
   password: ${ELASTICSEARCH_PASSWORD}
-  ssl:
-    certificate_authorities: ["/usr/share/elasticsearch/config/certificates/ca/ca.crt"]
-    # verification_mode: "certificate"
-
-    # certificate_authorities: ["/etc/pki/root/ca.pem"]
-    # certificate: "/etc/pki/client/cert.pem"
-    # key: "/etc/pki/client/cert.key"
 
 #============================== Xpack Monitoring ===============================
 xpack.monitoring:

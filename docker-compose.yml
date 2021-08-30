@@ -25,40 +25,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-  es_node2:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${VERSION}
-    environment:
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - data_es_node2:/usr/share/elasticsearch/data
-      - ./certs:$CERTS_DIR
-      - ./es_node2.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-    security_opt:
-      - seccomp:unconfined
-    networks:
-      - elastic
-  es_node3:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${VERSION}
-    environment:
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - data_es_node3:/usr/share/elasticsearch/data
-      - ./certs:$CERTS_DIR
-      - ./es_node3.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-    security_opt:
-      - seccomp:unconfined
-    networks:
-      - elastic
   kibana:
     image: docker.elastic.co/kibana/kibana:${VERSION}
     depends_on: {"es_node1": {"condition": "service_healthy"}}
@@ -105,10 +71,6 @@ services:
       - elastic
 volumes:
   data_es_node1:
-    driver: local
-  data_es_node2:
-    driver: local
-  data_es_node3:
     driver: local
   data_metricbeat1:
     driver: local
